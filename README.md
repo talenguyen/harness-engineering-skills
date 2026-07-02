@@ -32,16 +32,17 @@ evals/evals.json           First-pass eval prompts for skill testing
 
 ## Skill Map
 
-### User-invoked
+### Orchestrators
 
-These are slash-command style skills. The human chooses when to run them.
+These are the top-level skills most users start with. They can be invoked by
+name or selected by the model when the task calls for the whole workflow.
 
 | Skill | Use it when |
 |---|---|
 | [`setup-harness-engineering`](./skills/engineering/setup-harness-engineering/SKILL.md) | You want to prepare a repo for the line: rules, docs, gates, and review habits |
 | [`running-the-line`](./skills/engineering/running-the-line/SKILL.md) | You have one concrete coding task and want the full spec -> plan -> gate -> review flow |
 
-### Model-invoked
+### Station Skills
 
 These are reusable station skills. The model may invoke them automatically when
 the task fits.
@@ -87,4 +88,3 @@ This is not a promise that agents can replace engineering judgment. It is not a
 universal workflow for R&D, ambiguous product discovery, or architecture you do
 not understand. The line is for well-defined parts. Exploratory work should be
 done interactively first, then turned into work orders once the shape is known.
-

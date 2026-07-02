@@ -3,14 +3,14 @@
 Small Harness Engineering skills for AI coding agents. Install the whole set or
 only the station your workflow currently needs.
 
-## User-invoked
+## Orchestrators
 
 | Skill | Role |
 |---|---|
 | [`setup-harness-engineering`](./setup-harness-engineering/SKILL.md) | Prepare a repo: rules, docs location, gate map |
 | [`running-the-line`](./running-the-line/SKILL.md) | Orchestrate one task through all five stations |
 
-## Model-invoked
+## Station Skills
 
 | Skill | Role |
 |---|---|
@@ -22,4 +22,3 @@ only the station your workflow currently needs.
 
 Start with `running-the-line` for a full task or `work-order` if your current
 agent workflow keeps building the wrong thing correctly.
-

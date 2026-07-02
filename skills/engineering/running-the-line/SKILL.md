@@ -1,7 +1,6 @@
 ---
 name: running-the-line
-description: Run one concrete coding task through the Harness Engineering production line: work order, TDD plan, gates, inspection, and field feedback.
-disable-model-invocation: true
+description: Run one concrete coding task through the Harness Engineering production line. Use when the user wants to "run the line", apply harness engineering, implement a feature or fix safely, or coordinate work order -> TDD plan -> gates -> inspection -> field feedback.
 ---
 
 # Running the Line
