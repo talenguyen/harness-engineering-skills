@@ -1,62 +1,71 @@
 ---
 name: work-order
-description: 'Create or sharpen a Harness Engineering work order before any implementation. Use when a coding task needs business rules, acceptance criteria, edge cases, off-limits constraints, clarification questions, or a definition of correct that an AI coding agent can build and test against.'
+description: 'Create or sharpen a Harness Engineering work order before implementation. Use when a coding task needs context, business rules, acceptance criteria, edge cases, off-limits constraints, verification expectations, or clarification before an AI coding agent can safely build.'
 ---
 
 # Work Order
 
-A work order defines "correct" before code exists. It catches the most expensive
-defect: building the wrong thing correctly.
+A work order defines "correct" before code exists. It should be short enough to
+use and specific enough that a stranger can verify the result.
 
-## What to produce
+## Do Not Write Vague Specs
 
-Use this structure:
+Reject prompts like "build auth", "fix the dashboard", or "clean this up" until
+they are converted into observable rules. A vague work order produces either
+babysitting or vibe merging.
+
+## Work Order Format
 
 ```markdown
 # Work Order: [task]
 
-## Task
-[One sentence describing the part to build or fix.]
+## Context
+[Why this task exists, where in the repo it lives, and what user/system behavior changes.]
 
-## Business rules
+## Business Rules
 1. [Testable rule]
 
-## Acceptance criteria
+## Acceptance Criteria
 - [ ] [Observable outcome]
 
-## Edge cases
-- [Case that changes behavior, risk, or correctness]
+## Edge Cases
+- [Case that changes behavior, security, data handling, or failure mode]
 
-## Off-limits
-- [Constraint the implementation must not cross]
+## Off-Limits
+- [Boundary the implementation must not cross]
+
+## Verification
+- Tests:
+- Commands:
+- Manual/inspection checks:
 
 ## Assumptions
 - [Only if needed; label assumptions clearly]
 ```
 
-## How to write it
+## Clarifying Questions
 
-- Make every business rule testable.
-- Prefer observable outcomes over implementation guesses.
-- Include off-limits when a "green" implementation could still be wrong.
-- Separate durable rules from perishable commands, versions, flags, or vendor
-  details.
-- If a claim needs an external statistic or exact tool behavior, verify it
-  before including it or remove it.
-
-## Clarifying questions
-
-Ask only questions that change correctness:
+Ask questions only when the answer changes:
 
 - Public behavior or API contract
 - Security boundary
-- Data ownership, retention, or migration
+- Data ownership, retention, migration, or rollback
 - Failure mode
 - Edge case with meaningful user impact
+- Which existing behavior must remain unchanged
 
-If the question is low risk, make a conservative assumption and mark it.
+For low-risk unknowns, make a conservative assumption and mark it.
 
-## Stop condition
+## Quality Checks
 
-Stop when a stranger could verify the work from the work order. Do not drift
-into solution design unless design constraints are part of correctness.
+Before handing off to implementation, verify:
+
+- Every business rule has an acceptance criterion or verification check.
+- Every edge case either has a planned test or an inspection check.
+- Off-limits are concrete enough to review.
+- The work order does not prescribe implementation details unless they are
+  correctness constraints.
+- Commands, versions, and tool flags are either discovered from the repo or
+  clearly marked as examples.
+
+Stop if "correct" is still not verifiable.

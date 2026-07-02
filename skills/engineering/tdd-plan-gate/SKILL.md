@@ -1,61 +1,68 @@
 ---
 name: tdd-plan-gate
-description: 'Turn a work order into a TDD plan and stop for approval before implementation. Use when an AI coding agent needs a red-green-refactor plan, test coverage for acceptance criteria, public seams, implementation order, or a plan-review gate before writing code.'
+description: 'Turn a work order into an implementation plan that validates behavior before coding. Use when an AI coding agent needs a TDD plan, public seams, test coverage for acceptance criteria, non-TDD verification checklist, or a stop-for-approval gate.'
 ---
 
 # TDD Plan Gate
 
-The plan gate turns "correct" into machine-checkable feedback before the agent
-edits implementation code.
+The plan gate forces read-first and validate-first behavior. It is the cheapest
+moment to catch a missing case because no implementation exists yet.
 
 ## Inputs
 
-Start from the work order. If no work order exists, reconstruct a small one
-first or ask the user for the missing correctness rules.
+Start from a work order. If it does not exist, create or sharpen one first. Also
+read existing tests so the plan uses the repo's real testing style and public
+seams.
 
-## Plan format
+## Decide The Verification Mode
+
+Not every task is TDD-shaped.
+
+| Task | Plan style |
+|---|---|
+| Business behavior | TDD: one failing test per rule/edge case |
+| Bug fix | Regression test first, then fix |
+| Refactor | Existing tests stay green; add characterization test only for risky behavior |
+| Config/build change | Verification checklist with exact commands |
+| Migration | Before/after state, rollback check, data safety checks |
+| Prototype/exploration | Throwaway branch, explicit merge gate later |
+
+## Plan Format
 
 ```markdown
-# TDD Plan: [task]
+# Plan: [task]
 
-## Seams under test
-- [Public interface or behavior boundary]
+## Seams Under Test
+- [Public interface or behavior boundary, discovered from repo]
 
-## Test plan
-1. [ ] [Acceptance criterion or business rule] -> [expected observable result]
+## Test / Verification Plan
+1. [ ] [Rule or edge case] -> [test/check] -> [expected observable result]
 
-## Edge-case tests
-1. [ ] [Edge case] -> [expected observable result]
+## Off-Limits Coverage
+- [Constraint] -> [test, gate, or inspection check that catches violation]
 
-## Off-limits coverage
-- [Constraint] -> [how the plan or review will catch violations]
-
-## Implementation order
-1. Write failing test for [slice]
-2. Implement the minimum code to pass
-3. Run [relevant gate]
-4. Repeat
+## Implementation Order
+1. Read [files/tests]
+2. Write failing test/check for [slice]
+3. Implement minimum change
+4. Run [exact command]
+5. Repeat
 ```
 
-## Review the plan before coding
+## Reject The First Plan Once
 
-Try to reject the first plan once. Look for:
+Try to find one gap:
 
-- A business rule with no test.
-- An edge case that only appears in prose.
-- A test at the wrong seam or against internals.
-- A tautological assertion that repeats the implementation.
-- An off-limits rule that tests cannot catch and must be inspected later.
+- Rule with no test/check
+- Edge case left in prose
+- Test aimed at internals instead of public behavior
+- Tautological assertion
+- No command evidence
+- Off-limits not covered by tests, gates, or inspection
+- Too many slices bundled together
 
-If you find a gap, revise the plan and show the rejection reason. If you cannot
-find one, explicitly approve the plan and explain why.
+If there is a gap, show the rejection reason and revise. If there is no gap,
+say why the plan is ready.
 
-## Implementation rules after approval
-
-- One vertical slice at a time.
-- Red before green.
-- Minimal implementation per test.
-- Do not add speculative behavior for future tests.
-- Do not delete, weaken, or skip tests to pass.
-
-Do not implement before approval unless the user explicitly overrides the gate.
+Do not implement before the plan is approved unless the user explicitly
+overrides the gate.

@@ -1,41 +1,38 @@
-# Harness Engineering Agent Rules
+# [Project Name] Agent Guide
 
-## Line discipline
+> Fill this file only with repo-specific facts. Delete any line you cannot
+> verify from the repo or from the project owner.
 
-- Start coding tasks with a work order unless one already exists.
-- Produce a TDD plan and stop for approval before implementation.
-- Implement one vertical slice at a time: failing test, minimal code, gate.
-- Run the relevant gates before review.
-- Review against the work order, not against vague intent.
-- Promote escaped defects upstream as tests, rules, gates, or review checks.
+## Before Starting Work
+
+- Read [doc path] for build/test commands.
+- Read [doc path] for project-specific conventions.
+
+## Stack
+
+- [runtime/language discovered from repo]
+- Package manager: [exact package manager; do not guess]
+- Test runner: [exact test runner if known]
 
 ## Always
 
-- Respect the repo's package manager and existing commands.
-- Show evidence for tests, type checks, lint, secret scan, and other gates.
+- Write or update tests before implementation when behavior changes.
+- Run [exact test command] before review.
+- Run [exact lint/type/format command] before review.
+- Show command output as evidence.
 - Keep changes scoped to the work order.
-- Record assumptions when correctness depends on them.
 
 ## Never
 
 - Do not bypass hooks or use no-verify flags.
-- Do not edit lint, type, test, or hook configuration just to make a check pass.
+- Do not edit lint, type, test, or hook configuration just to make a task pass.
 - Do not delete, weaken, or skip tests to get green.
 - Do not print, edit, rename, delete, or commit secret files.
-- Do not implement before the plan gate unless the user explicitly overrides it.
+- Do not touch [repo-specific off-limits paths or APIs].
 
-## Project stack
+## When A Gate Fails
 
-- Language/runtime:
-- Package manager:
-- Test command:
-- Type-check command:
-- Lint/format command:
-- Secret scan command:
-- CI command:
-
-## Gate failure loop
-
-Read the error, fix the exact issue, re-run the same gate, and proceed only when
-green. If the gate itself is wrong, stop and ask for a separate config change.
+Read the exact error, fix that defect, re-run the same gate, and proceed only
+when green. If the gate itself is wrong, stop and propose a separate config
+change.
 

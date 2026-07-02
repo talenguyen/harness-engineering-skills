@@ -1,41 +1,42 @@
 ---
 name: field-return
-description: 'Convert a production bug, incident, customer report, or escaped defect into an upstream harness improvement. Use when something reached production or review late and the user needs a regression test, new acceptance criterion, hook, monitoring note, or station-leak analysis.'
+description: 'Convert a production bug, incident, customer report, or escaped defect into an upstream harness improvement. Use when something reached production or review late and the user needs a regression test, new work-order rule, gate, inspection check, or escape analysis.'
 ---
 
 # Field Return
 
-A field return is a defect that escaped the line. The fix is not complete until
-the class of defect is moved upstream.
+A field return is proof that the line leaked. The fix is incomplete until the
+class of defect is moved upstream.
 
 ## Process
 
-1. Reproduce or characterize the defect.
-   - What failed?
-   - Who observed it?
-   - What was the expected behavior?
-   - What was the actual behavior?
+1. Characterize the escape.
+   - Symptom
+   - Expected behavior
+   - Actual behavior
+   - Scope and impact
+   - Reproduction path or strongest available evidence
 
-2. Classify the escape.
-   - Work Order leaked if correctness was never specified.
-   - The Part leaked if behavior was specified but not tested.
-   - Andon Cord leaked if a mechanical gate should have failed.
-   - Inspection leaked if judgment or spec drift was visible in review.
-   - Field leaked if monitoring, rollback, or alerting failed to surface it.
+2. Identify the first station that could have caught it.
+   - Work Order: correctness was never specified.
+   - Plan/Test: specified behavior had no test/check.
+   - Andon Cord: mechanical gate was missing, weak, or bypassed.
+   - Inspection: judgment issue was visible but missed.
+   - Field: monitoring/rollback/alerting failed to surface it quickly.
 
-3. Add the upstream catch.
-   - Missing rule -> update the work order template or project rules.
-   - Missing behavior check -> add a regression test.
-   - Missing mechanical check -> add or tighten a gate.
-   - Missed review concern -> add an inspection checklist item.
-   - Missing observability -> add monitoring, alerting, or rollback notes.
+3. Promote the catch upstream before or alongside the fix.
+   - New work-order rule
+   - Regression test or characterization test
+   - Gate or ratchet rule
+   - Inspection checklist item
+   - Observability or rollback note
 
-4. Fix the defect.
-   - Keep the fix as small as possible.
-   - Verify the new upstream catch fails before the fix and passes after it when
-     that is practical.
+4. Fix and prove.
+   - Show the new catch failing before the fix when practical.
+   - Apply the smallest fix.
+   - Show the catch passing after the fix.
 
-## Field return record
+## Record Format
 
 ```markdown
 # Field Return: [defect]
@@ -43,21 +44,22 @@ the class of defect is moved upstream.
 ## Symptom
 [What was observed]
 
-## Expected behavior
-[What should have happened]
+## Expected vs Actual
+- Expected:
+- Actual:
 
-## Escape analysis
-- Station that should have caught it:
+## Escape Analysis
+- First station that could have caught it:
 - Why it escaped:
 
-## Upstream promotion
-- New/updated work order rule:
-- New/updated test:
-- New/updated gate:
-- New/updated inspection item:
+## Upstream Promotion
+- Work order update:
+- Regression test/check:
+- Gate update:
+- Inspection update:
 
-## Fix evidence
-- [commands, screenshots, logs, or review notes]
+## Fix Evidence
+- [commands, logs, links, or review notes]
 ```
 
 Do not stop at "bug fixed." The line gets better only when the escape becomes a

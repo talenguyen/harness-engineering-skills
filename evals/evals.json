@@ -24,6 +24,12 @@
       "prompt": "A production bug escaped: users can reuse a refresh token twice during a race. Fix it the harness way.",
       "expected_output": "Classifies the escaped station, adds or proposes a regression test and upstream rule, then scopes the fix and evidence instead of only patching the bug.",
       "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "Run setup-harness-engineering on a repo that has package.json with test/lint scripts, an existing AGENTS.md, and no pre-commit config. Do not create empty docs.",
+      "expected_output": "Audits existing files first, proposes a concise AGENTS.md patch and a build-commands doc only if populated with real commands, reports missing gates as backlog, and explicitly avoids empty docs/harness scaffolding.",
+      "files": []
     }
   ]
 }

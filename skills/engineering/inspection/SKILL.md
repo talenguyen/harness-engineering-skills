@@ -1,40 +1,49 @@
 ---
 name: inspection
-description: 'Review an AI-generated diff or PR against a Harness Engineering work order. Use when the user asks for code review, PR inspection, spec-fit review, review against acceptance criteria, or a check for judgment calls after automated gates have run.'
+description: 'Review an AI-generated diff or PR against a Harness Engineering work order. Use when the user asks for code review, PR inspection, spec-fit review, acceptance criteria verification, judgment-call review, or leak analysis after gates ran.'
 ---
 
 # Inspection
 
-Inspection is final human review after upstream stations have done their work.
-It should be narrow and rigorous: spec fit plus judgment calls.
+Inspection is not redoing lint by hand. It is the final check for spec fit,
+boundaries, and judgment calls after upstream stations have done their job.
 
-## Inputs
+## Required Inputs
 
-Prefer these inputs:
+Prefer:
 
 - Work order
-- TDD plan
+- TDD/verification plan
 - Diff or PR
 - Gate output
 
-If the work order is missing, reconstruct the likely acceptance criteria and
-mark that as a review risk.
+If any are missing, mark that as a review risk. Do not silently reconstruct
+everything and pretend confidence is high.
 
-## Review order
+## Review Order
 
-1. Verify each acceptance criterion.
-2. Check each off-limits constraint.
-3. Review judgment calls: security, data handling, public behavior, migration
-   risk, operational failure modes, and architecture boundaries.
-4. Inspect diff shape: files touched, tests added, speculative changes, deleted
-   tests, config changes, and gate bypasses.
-5. Identify which upstream station leaked for each issue.
+1. Acceptance criteria: pass/fail/unknown with evidence.
+2. Off-limits: respected/violated/unknown.
+3. Test quality: meaningful seams, not tautological, not trivial coverage theater.
+4. Judgment calls: security, data handling, API behavior, migrations, failure modes.
+5. Diff shape: many files, config edits, deleted tests, speculative changes.
+6. Gate evidence: commands run, commands missing, failures ignored.
+7. Leak analysis: which upstream station should catch each finding next time.
 
-Do not lead with style comments if gates should have caught them. If style,
-format, or type defects are present after gates supposedly ran, call out Station
-3 as leaking.
+## Agent PR Smells
 
-## Output format
+Call these out directly:
+
+| Signal | Likely leak |
+|---|---|
+| Many files edited, tests trivial | Work order/spec drift |
+| Large diff, no tests or checks | Plan gate skipped |
+| Config changed to pass | Andon cord bypass |
+| Deleted/softened tests | Agent optimized for green |
+| Fix touches callers instead of root cause | Missing architectural constraint |
+| PR summary lacks test evidence | Feedback/review package weak |
+
+## Output Format
 
 Lead with findings:
 
@@ -45,15 +54,14 @@ Lead with findings:
   Why it matters:
   Upstream station that should catch next time:
 
-## Acceptance criteria
-- [ ] [criterion] - [pass/fail/unknown]
+## Acceptance Criteria
+- [ ] [criterion] - [pass/fail/unknown] - [evidence]
 
-## Gate evidence
-- [gate] - [passed/failed/not run]
+## Gate Evidence
+- [command] - [passed/failed/not run]
 
-## Residual risk
+## Residual Risk
 - [what remains uncertain]
 ```
 
-If there are no issues, say that clearly and name the remaining test or review
-gap, if any.
+If there are no findings, say so and name any missing evidence.
