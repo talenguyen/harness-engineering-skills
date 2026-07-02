@@ -1,6 +1,6 @@
 ---
 name: work-order
-description: Create or sharpen a Harness Engineering work order before any implementation. Use when a coding task needs business rules, acceptance criteria, edge cases, off-limits constraints, clarification questions, or a definition of "correct" that an AI coding agent can build and test against.
+description: 'Create or sharpen a Harness Engineering work order before any implementation. Use when a coding task needs business rules, acceptance criteria, edge cases, off-limits constraints, clarification questions, or a definition of correct that an AI coding agent can build and test against.'
 ---
 
 # Work Order
@@ -60,4 +60,3 @@ If the question is low risk, make a conservative assumption and mark it.
 
 Stop when a stranger could verify the work from the work order. Do not drift
 into solution design unless design constraints are part of correctness.
-

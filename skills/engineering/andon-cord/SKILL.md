@@ -1,6 +1,6 @@
 ---
 name: andon-cord
-description: Design, install, or use hard-failing quality gates for AI coding workflows. Use when the user needs pre-commit hooks, lint/type/test/secret gates, ratcheting for legacy repos, gate failure recovery, or rules that stop agents from bypassing or weakening checks.
+description: 'Design, install, or use hard-failing quality gates for AI coding workflows. Use when the user needs pre-commit hooks, lint/type/test/secret gates, ratcheting for legacy repos, gate failure recovery, or rules that stop agents from bypassing or weakening checks.'
 ---
 
 # Andon Cord
@@ -49,4 +49,3 @@ needs to change, make that a separate, explicit change with its own reason.
 Do not install every possible tool on day one. Install the smallest gate set
 that catches the repo's current leaks. A fast, reliable gate that runs every
 time is better than a comprehensive gate nobody uses.
-

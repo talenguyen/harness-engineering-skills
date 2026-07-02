@@ -1,6 +1,6 @@
 ---
 name: inspection
-description: Review an AI-generated diff or PR against a Harness Engineering work order. Use when the user asks for code review, PR inspection, spec-fit review, review against acceptance criteria, or a check for judgment calls after automated gates have run.
+description: 'Review an AI-generated diff or PR against a Harness Engineering work order. Use when the user asks for code review, PR inspection, spec-fit review, review against acceptance criteria, or a check for judgment calls after automated gates have run.'
 ---
 
 # Inspection
@@ -57,4 +57,3 @@ Lead with findings:
 
 If there are no issues, say that clearly and name the remaining test or review
 gap, if any.
-

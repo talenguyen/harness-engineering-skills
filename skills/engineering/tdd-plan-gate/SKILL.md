@@ -1,6 +1,6 @@
 ---
 name: tdd-plan-gate
-description: Turn a work order into a TDD plan and stop for approval before implementation. Use when an AI coding agent needs a red-green-refactor plan, test coverage for acceptance criteria, public seams, implementation order, or a plan-review gate before writing code.
+description: 'Turn a work order into a TDD plan and stop for approval before implementation. Use when an AI coding agent needs a red-green-refactor plan, test coverage for acceptance criteria, public seams, implementation order, or a plan-review gate before writing code.'
 ---
 
 # TDD Plan Gate
@@ -59,4 +59,3 @@ find one, explicitly approve the plan and explain why.
 - Do not delete, weaken, or skip tests to pass.
 
 Do not implement before approval unless the user explicitly overrides the gate.
-

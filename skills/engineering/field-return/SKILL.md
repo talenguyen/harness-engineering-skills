@@ -1,6 +1,6 @@
 ---
 name: field-return
-description: Convert a production bug, incident, customer report, or escaped defect into an upstream harness improvement. Use when something reached production or review late and the user needs a regression test, new acceptance criterion, hook, monitoring note, or station-leak analysis.
+description: 'Convert a production bug, incident, customer report, or escaped defect into an upstream harness improvement. Use when something reached production or review late and the user needs a regression test, new acceptance criterion, hook, monitoring note, or station-leak analysis.'
 ---
 
 # Field Return
@@ -62,4 +62,3 @@ the class of defect is moved upstream.
 
 Do not stop at "bug fixed." The line gets better only when the escape becomes a
 future catch.
-

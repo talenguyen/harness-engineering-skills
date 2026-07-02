@@ -1,6 +1,6 @@
 ---
 name: setup-harness-engineering
-description: Set up a repository to use the Harness Engineering line. Use when the user wants to install or configure harness engineering skills, create agent rules, add station docs, map quality gates, or prepare a repo for AI coding agents.
+description: 'Set up a repository to use the Harness Engineering line. Use when the user wants to install or configure harness engineering skills, create agent rules, add station docs, map quality gates, or prepare a repo for AI coding agents.'
 ---
 
 # Setup Harness Engineering
