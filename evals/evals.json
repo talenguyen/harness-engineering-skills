@@ -1,0 +1,29 @@
+{
+  "skill_name": "harness-engineering",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to add password reset to an existing app. Run this through harness engineering, but do not implement yet.",
+      "expected_output": "Creates a work order with business rules, acceptance criteria, edge cases, and off-limits; stops before implementation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Here is a work order for login rate limiting. Produce the TDD plan and tell me whether the first plan should be rejected before coding.",
+      "expected_output": "Produces a TDD plan mapped to acceptance criteria, identifies at least one plausible missing edge case or explains why none is missing, and does not implement.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Our repo has hundreds of old lint failures, but I want agents to stop shipping new lint/type/secret problems. Design the Andon Cord station.",
+      "expected_output": "Recommends a ratcheted gate strategy for new or modified code, a gate map, hard-fail behavior, and rules against bypassing or weakening checks.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "A production bug escaped: users can reuse a refresh token twice during a race. Fix it the harness way.",
+      "expected_output": "Classifies the escaped station, adds or proposes a regression test and upstream rule, then scopes the fix and evidence instead of only patching the bug.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "harness-engineering-skills",
+  "skills": [
+    "./skills/engineering/setup-harness-engineering",
+    "./skills/engineering/running-the-line",
+    "./skills/engineering/work-order",
+    "./skills/engineering/tdd-plan-gate",
+    "./skills/engineering/andon-cord",
+    "./skills/engineering/inspection",
+    "./skills/engineering/field-return"
+  ]
+}
