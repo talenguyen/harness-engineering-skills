@@ -196,7 +196,7 @@ Install so it runs on every commit: `pre-commit install`.
 
 ---
 
-## Step 5 — Ratchet, don't big-bang (the part other guides skip)
+## Step 5 — Ratchet, don't big-bang
 
 You **cannot** flip every rule to "error" on day one in a repo with history. You'll block
 every commit on thousands of pre-existing violations and the team rips the hooks out by

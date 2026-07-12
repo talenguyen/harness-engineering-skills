@@ -125,7 +125,7 @@ After the **human** merges a task's PR (GitHub mode) or approves the local revie
 before:
 
 1. Set the task `status: done` (sync the GitHub issue/label in GitHub mode).
-2. **Doc sync (most-skipped step).** If the task introduced a new convention, changed
+2. **Doc sync (easy to skip).** If the task introduced a new convention, changed
    behavior, or broke something, update the project's agent rules (`AGENTS.md` / `harness.md`),
    the relevant `docs/*`, and `CHANGELOG` **now** — before moving on. Stale docs make the next
    task build against the wrong picture.

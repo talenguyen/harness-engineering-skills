@@ -12,76 +12,57 @@ enforces:
 
 # Implement Task Loop — Station 2 (The Part) + Station 3 (Andon Cord)
 
-Pick up ready tasks and drive each one from red to green to hooks-green, updating status
-as you go. This is where TDD and the Andon Cord do their work: tests catch logic defects,
-hooks catch mechanical ones, and the agent self-corrects both without a human.
+Drive each ready task from red → green → hooks-green, updating status as you go. Tests catch
+logic defects, hooks catch mechanical ones, and the agent self-corrects both without a human.
 
 ---
 
-## Run each task in a clean context (avoid fill + cross-task pollution)
+## Run each task in a clean context
 
-Running many tasks in one long session causes two failures: the context window **fills up**,
-and earlier tasks' details **pollute** the current one (stale assumptions, leaked names,
-focusing on the wrong files). Prevent both by treating every task as a **clean room**. The
-files are the memory — a task's `docs/tasks/<id>.md`, its spec section(s), the plan, and
-`harness.md` hold everything needed — so no task should depend on the *transcript* of
-previous tasks.
+Many tasks in one session cause two failures: the context window **fills up**, and earlier
+tasks **pollute** the current one (stale assumptions, leaked names). Treat every task as a
+clean room — the files are the memory (its `docs/tasks/<id>.md` + spec section + plan +
+`harness.md`), so no task depends on the *transcript* of earlier tasks. Pick the strongest
+option your runtime supports:
 
-Pick the strongest option your runtime supports:
+- **Sub-agent per task (best).** The controller stays tiny: read the map, pick a ready task,
+  dispatch **one sub-agent** seeded only with that task file + its spec/plan + the code it
+  touches (own worktree). It runs red→green→hooks→`in_review`→PR and returns a one-line
+  summary (id, status, PR link). The controller records that line and never absorbs the
+  sub-agent's working context.
+- **Compact between tasks (fallback).** At each task's terminal state, drop its working
+  details (diffs, test output) and keep a durable **ledger** — the map plus each task's
+  `id → status → PR`. Re-read the next task's files fresh.
 
-1. **Best — delegate each task to a sub-agent.** The loop controller stays tiny: read the
-   map, pick a ready task, and dispatch **one sub-agent per task**, seeded only with that
-   task file + its referenced spec/plan + the code it touches (in its own worktree). The
-   sub-agent runs red→green→hooks→`in_review` (through the PR via `deliver.md`) and returns a
-   **short summary** (task id, final status, PR link, notes). The controller records that one
-   line and moves on — it never absorbs the sub-agent's working context. Cleanest isolation,
-   and it pairs naturally with per-task worktrees.
-2. **Fallback — compact between tasks.** If sub-agents aren't available, at each task's
-   terminal state (PR opened / merged) **compact**: drop that task's working details (diffs,
-   test output, exploration) and keep only a durable **ledger** — the map/overview plus each
-   task's `id → status → PR`. Start the next task by re-reading *its* files fresh.
-
-Either way: the **loop controller keeps only a minimal ledger**, never accumulated
-transcripts; and when you start a task, read **its** task file as the single source of truth
-— do not carry another task's decisions forward from memory.
-
-Two more habits:
-
-- **Flag a runaway task.** If a single task burns more than ~200k tokens (or the session
-  starts feeling sluggish/repetitive), stop — that usually means the task was too vague or
-  too big. Sharpen or split it rather than pushing a bloated context further.
-- **Context-reset pattern.** When a task runs long, commit work-in-progress to its branch,
-  start a **fresh session**, and let it re-read the spec map + task file + branch state and
-  continue. A clean context outperforms a stale one near capacity — prefer many short
-  sessions over one marathon.
+The controller keeps only that ledger, never accumulated transcripts. If a single task burns
+more than ~200k tokens or the session turns sluggish, stop — the task was too vague or too
+big; sharpen or split it. For a long task, commit work-in-progress and start a fresh session
+that re-reads the map + task file + branch state; a clean context beats a stale one near capacity.
 
 ---
 
 ## Step 0 — Sync from GitHub first (GitHub mode only)
 
 GitHub is the source of truth for merge state, and a human may have merged a PR while **no
-agent was running**. So before selecting work, reconcile the local task files with GitHub —
-otherwise a task drifts (`in_review` forever) and you may re-implement something merged.
+agent was running**. Reconcile local task files with GitHub before selecting work, or a task
+drifts (`in_review` forever) and you may re-implement something merged.
 
-**Only check tasks with `status: in_review`.** Those are the only ones with an open PR a
-human could have merged. `todo` / `blocked` / `in_progress` have no PR yet, and `done` is
-already settled — checking them is wasted `gh` calls. So if nothing is `in_review`, skip
-this step entirely.
+**Only check tasks with `status: in_review`** — the only ones with an open PR a human could
+have merged. `todo` / `blocked` / `in_progress` have no PR; `done` is settled. If nothing is
+`in_review`, skip this step.
 
-For each `in_review` task, using its `issue:` number (or the `T-<id>` label):
+For each `in_review` task, via its `issue:` number (or `T-<id>` label):
 
-- PR **merged** → set `status: done` in `docs/tasks/<id>.md`; clean up its worktree/branch.
-- PR **closed without merging** (rejected) → move it back to `todo`/`in_progress` and note why.
+- PR **merged** → set `status: done`; clean up its worktree/branch.
+- PR **closed unmerged** (rejected) → move back to `todo`/`in_progress` and note why.
 - PR still **open** → leave as `in_review`.
 
 ```sh
-# reconcile the in_review tasks only, e.g. T-002 (mirrored issue #2):
 gh pr list --search "T-002 in:title" --state merged --json number --jq '.[0].number'  # merged?
 # if merged ⇒ set status: done in docs/tasks/T-002.md
 ```
 
-Only after this sync do you select ready tasks. (**Local mode:** skip — the files are
-already the source of truth.)
+(**Local mode:** skip — the files are already the source of truth.)
 
 ---
 
@@ -93,96 +74,72 @@ progress, the loop is complete — hand back to `deliver.md` for final loop cont
 
 ---
 
-## Step 2 — Decide serial vs parallel (guardrailed)
+## Step 2 — Serial vs parallel, and isolate each task
 
 Default to **serial**. Parallelism usually moves the bottleneck onto the human (three PRs
 land at once on one reviewer), so only fan out when *all* of these hold:
 
-- every candidate task has `parallel_safe: true`, **and**
+- every candidate task is `parallel_safe: true`, **and**
 - their `touches` globs do **not** overlap (no shared files → no merge conflicts), **and**
 - you stay under a fixed **concurrency cap** (e.g. 2–3), **and**
-- you warn about the review bottleneck: parallel work piles up at Inspection, so only do
-  it once the single-agent line has been boringly reliable.
+- the single-agent line has already been boringly reliable (parallel work piles up at Inspection).
 
-If any condition fails, run serially. Sequential is often faster because the bottleneck
-is the human reviewer, not the agent.
+If any condition fails, run serially — sequential is often faster because the bottleneck is
+the human reviewer, not the agent. (This permits fan-out, which the source guide is cautious
+about, but the four conditions keep it from creating a review pile-up.)
 
-> Documented tradeoff vs the source guide: "Running the Line" recommends sequential-first
-> and parallel only once the line is reliable. This skill permits fan-out but gates it
-> behind the four conditions above so it can't create a review pile-up by accident.
-
-### Isolate each task on its own branch (worktree when parallel)
-
-Every task is built on its own branch `task/<id>-<slug>` cut from the base branch — never
-directly on `main` — and this branch is created **at the start of implementation**, not at
-delivery.
+**Every task is built on its own branch `task/<id>-<slug>`, cut from the base branch at the
+start of implementation** — never on `main`, never at delivery time.
 
 - **Serial:** work on the task branch in the main working tree.
-- **Parallel:** give each concurrent task its own **git worktree**, so there is zero shared
-  git state (separate working tree + branch + index):
+- **Parallel:** give each concurrent task its own **git worktree** for zero shared git state:
 
   ```sh
   git worktree add ../<repo>.wt/<id> -b task/<id>-<slug> <base-branch>
   ```
 
-  Run the entire TDD + hooks loop *inside* that worktree. This is what makes real
-  concurrency safe: the `touches` guardrail prevents file-*content* conflicts, and the
-  worktree prevents git-*state* conflicts (HEAD / index / checkout). The `touches`
-  non-overlap rule alone is **not** enough for genuinely concurrent agents — they would
-  still share one HEAD/branch without a worktree.
-
-  **Cold-start caveat:** a fresh worktree *shares* the repo's installed git hooks (they
-  live in the common git dir) and pre-commit's global tool cache — so you do **not** re-run
-  `pre-commit install`. But it does **not** share the project's dependency/build state
-  (`node_modules`, `.venv`, `target/`, compiled artifacts). Run the project's install/build
-  in the new worktree (e.g. `uv sync`, `npm install`) **before** tests and gates, or they
-  fail spuriously. `deliver.md` pushes and opens the PR from that worktree, then removes it
-  after the merge.
+  Run the whole TDD + hooks loop *inside* that worktree. `touches` non-overlap prevents
+  file-*content* conflicts; the worktree prevents git-*state* conflicts (HEAD / index /
+  checkout) — the `touches` rule alone is not enough for genuinely concurrent agents.
+  **Cold-start:** a fresh worktree shares the repo's git hooks (common git dir) and
+  pre-commit's global cache — so don't re-run `pre-commit install` — but **not** the
+  project's dependency/build state. Run install/build (`uv sync`, `npm install`) before
+  tests and gates, or they fail spuriously. `deliver.md` pushes/opens the PR from the
+  worktree, then removes it after merge.
 
 ---
 
 ## Step 3 — Per task: TDD red → green
 
-For each selected task, work from its mini Work Order body. **Before the first edit, put
-the task on its own branch (and worktree, if parallel) per Step 2**, so every edit, test,
-and commit happens on `task/<id>-<slug>`, never on `main`.
+Work from the task's mini Work Order body, on its own branch/worktree (Step 2):
 
-1. **Plan before editing.** Read the code the task touches. Restate what you'll change.
-   No premature patching.
-2. **Set `status: in_progress`** in the task frontmatter.
-3. **Write the tests first**, derived from the body:
-   - one test per **acceptance criterion**,
-   - one test per **edge case** (the 2am breakers),
-   - assertions that would fail if an **off-limits** constraint were crossed.
-   Run them — they must be **red** for the right reason (feature missing, not typo).
-4. **Implement the minimum** to turn the tests green. Nothing beyond what the task needs.
+1. **Plan before editing.** Read the code the task touches; restate what you'll change. No premature patching.
+2. **Set `status: in_progress`** in the frontmatter.
+3. **Write the tests first**, derived from the body: one per acceptance criterion, one per
+   edge case, plus assertions that fail if an **off-limits** constraint is crossed. They must
+   be **red** for the right reason (feature missing, not a typo).
+4. **Implement the minimum** to turn them green — nothing beyond what the task needs.
 5. **Green.** All the task's tests pass.
 
-### Off-limits enforcement
-Treat the task's Off-limits list as hard constraints. If satisfying a test seems to
-require crossing one (touching a forbidden file, adding a banned dependency, changing a
-frozen API), **stop and surface it** — do not cross it silently.
+**Off-limits are hard constraints.** If passing a test seems to require crossing one
+(forbidden file, banned dependency, frozen API), **stop and surface it** — never cross silently.
 
 ---
 
 ## Step 4 — Tests ≠ correctness (guard the intent)
 
-Agents can satisfy the letter of a visible suite while missing its intent, and the gap
-grows on longer tasks. The always-available guard is cheap: **carry the explicit question
-forward to Inspection — *"did this satisfy the harness, or the intent?"*** — it is not only
-a Station 2 concern.
+Agents can satisfy a visible suite while missing its intent, and the gap grows on longer
+tasks. The always-available guard is cheap: carry the question forward to Inspection —
+*"did this satisfy the harness, or the intent?"*
 
-Two **optional, advanced** techniques for non-trivial or safety-relevant work — use them
-only when the harness actually supports them, and skip them otherwise rather than pretending:
+Two **optional** techniques for non-trivial/safety-relevant work — use only if your harness
+supports them, don't fake them:
 
-- **Held-out tests.** If a separate reviewer or sub-agent writes the implementation, keep a
-  few tests it doesn't see or edit and run them at Inspection. Concrete convention: put them
-  in `tests/held_out/` and have the implementing step ignore that path; reveal at Station 4.
-  In a single-agent session this offers little — don't fake it; rely on the Inspection
-  question above instead.
-- **Mutation testing** on critical paths (a mutation tool flips small code changes and
-  checks a test fails) — note *where* it's worth running; wire it in only if your stack has
-  a mutation tool configured.
+- **Held-out tests.** If a separate reviewer/sub-agent writes the code, keep a few tests it
+  can't see or edit (e.g. `tests/held_out/`, ignored by the implementing step) and run them
+  at Inspection. In a single-agent session this offers little — rely on the question above.
+- **Mutation testing** on critical paths — note *where* it's worth running; wire it in only
+  if your stack has a mutation tool configured.
 
 ---
 
@@ -190,76 +147,50 @@ only when the harness actually supports them, and skip them otherwise rather tha
 
 Run the pre-commit gates (format, lint net-new, type-check, secret scan) before committing.
 
-- A hook failure prints a **precise** error. Read it, fix that exact thing, re-run, go
-  green. This self-recovery loop needs **no human** and is the difference between agents
-  that finish and agents that stall.
-- **Never** `--no-verify`. **Never** edit hook/lint/type config or delete/skip a test to
-  go green (`running-the-line` non-negotiables 3 & 4). If a gate seems genuinely wrong, stop and surface it.
-- A fast, clear, automatic feedback loop is worth more than a smarter model — keep it fast.
+- A hook failure prints a **precise** error. Read it, fix that exact thing, re-run, go green.
+  This self-recovery — no human — is the difference between agents that finish and agents that stall.
+- **Never** `--no-verify`; **never** edit hook/lint/type config or delete/skip a test to go
+  green (non-negotiables 3 & 4). If a gate is genuinely wrong, stop and surface it.
 
 ---
 
-## Step 6 — Hand this task to delivery NOW (per task, not batched)
+## Step 6 — Hand this task to delivery (per task, not batched)
 
-When *this* task's tests are green and its hooks pass:
+When *this* task's tests and hooks are green:
 
-- Set the task `status: in_review`.
-- In GitHub mode, push the task's branch and sync the status label.
-- **Immediately hand off to `deliver.md` for THIS task** — it opens the PR (Station 4, the
-  human review gate). One finished task ⇒ one PR, right now.
+- Set `status: in_review`; in GitHub mode push the task branch and sync the status label.
+- **Hand off to `deliver.md` for this task** — it opens the PR (Station 4, the human review
+  gate). One finished task ⇒ one PR, immediately. Do **not** implement every task first and
+  deliver once at the end.
 
-> **Do NOT implement every task first and deliver once at the end.** Each task goes to its
-> own PR the moment it reaches `in_review`. With 15 tasks you get ~15 PRs over time, not one
-> batch at the finish.
+While the PR awaits a human merge, you may start the next *independent* ready task (its own
+worktree) — but this task is not `done`, and its dependants stay blocked, until a human merges it.
 
-While that PR waits for the human to merge, you may return to Step 1 and start the next
-*independent* ready task (its own worktree) — but this task is not `done`, and its
-dependants stay blocked, until a human merges its PR.
-
----
-
-## How the loop runs — one task at a time (implement ⇄ deliver)
-
-The pipeline alternates between this skill and `deliver.md` **per task**. Read it as a cycle,
-not a batch:
+The loop is therefore one task at a time, alternating with `deliver.md`:
 
 ```text
-   ┌─────────────────────────── next ready task ───────────────────────────┐
-   │                                                                        │
-pick ONE ready task ─► branch/worktree ─► tests red ─► implement ─► green   │
-   ─► hooks green ─► status = in_review                                     │
-        │                                                                   │
-        └─► deliver.md: open THIS task's PR ─► human reviews & MERGES ──────┘
-                                               │
-                                               └─► status = done ─► dependants unblock
-
-Exit only when no task is READY and none is in_review/awaiting-merge → line done.
+pick ONE ready task → branch/worktree → tests red → implement → green → hooks green
+   → status = in_review → deliver.md opens its PR → human merges → status = done
+   → dependants unblock → next ready task
+Exit only when no task is ready and none is in_review/awaiting-merge.
 ```
-
-Per task, in order: `implement → in_review → PR → (human merge) → done`, then the next
-ready task. `deliver.md` runs once **per task**, not once at the end.
 
 ---
 
 ## Self-check (dry-run validation)
 
-- [ ] GitHub mode: synced **only `in_review`** tasks from GitHub (merged PR → `done`) before
-      selecting work — didn't waste calls on todo/blocked/in_progress/done.
+- [ ] GitHub mode: synced **only `in_review`** tasks from GitHub (merged PR → `done`) before selecting work.
 - [ ] Correctly identifies ready vs blocked tasks from `depends_on` + `status`.
 - [ ] Refuses to parallelize tasks with overlapping `touches` or any `parallel_safe: false`.
-- [ ] Each task is on its own `task/<id>-<slug>` branch; parallel tasks each run in their
-      own git worktree (no shared git state).
-- [ ] Each task runs in a clean context (a sub-agent per task, or compact between tasks); the
-      loop controller keeps only a minimal ledger, not prior tasks' transcripts.
-- [ ] Walks one task red → green: tests written first and failing for the right reason.
-- [ ] Enforces off-limits (stops rather than crossing a forbidden constraint).
-- [ ] Runs hooks and self-corrects a mechanical error without weakening any gate.
-- [ ] Notes hidden/held-out tests + mutation on critical paths.
-- [ ] Flips `status` to `in_review` and unblocks dependants.
+- [ ] Each task is on its own `task/<id>-<slug>` branch; parallel tasks each get their own worktree.
+- [ ] Each task runs in a clean context; the controller keeps only a minimal ledger.
+- [ ] Walks one task red → green: tests written first, failing for the right reason.
+- [ ] Enforces off-limits; runs hooks and self-corrects without weakening any gate.
+- [ ] Flips `status` to `in_review` and hands the task to `deliver.md` (does not batch).
 
 ---
 
 ## Handoff
 
-When a task reaches `in_review`, proceed to **`deliver`** (Station 4) to open a
-PR / review + merge, then loop back here while ready tasks remain.
+When a task reaches `in_review`, proceed to **`deliver`** (Station 4), then loop
+back here while ready tasks remain.
