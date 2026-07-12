@@ -3,6 +3,10 @@
 - Parent: docs/specs/<slug>/overview.md
 - Status: drafting            # drafting | drafted | approved | implemented
 
+## Context
+Why this section exists, which area of the codebase it touches, and what user/system
+behavior changes. (What and why — not how.)
+
 ## Summary
 One or two sentences.
 

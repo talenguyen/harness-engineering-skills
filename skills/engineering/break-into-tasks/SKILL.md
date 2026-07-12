@@ -26,6 +26,35 @@ behavior on every task.
 
 ---
 
+## Write what, not how — the task body is a Work Order
+
+The design in `docs/plans/<slug>.md` is where the *how* lives (components, signatures,
+algorithms). A **task body is a Work Order**: it states what "done" looks like, not how to
+build it. Copying design detail into task requirements is the most common way tasks become
+unreadable — you end up parsing code to recover intent, you over-constrain the implementer
+(violating rule 1: leave the *how* to the agent at Station 2), and over-specified rules start
+contradicting themselves.
+
+Keep every field behavioral:
+- **Business rules** = observable behavior.
+  - ✅ "A stock symbol is 3 uppercase letters; lowercase is normalized; a blank symbol is rejected."
+  - ❌ `validate_symbol(s: str, *, required=False) -> None` raising `ValidationError`.
+- **Acceptance criteria** = stranger-verifiable outcomes (input → observed result). Example
+  values are fine; internal signatures are not.
+- **Do NOT put in a task body:** function/method signatures, algorithm pseudocode, private
+  helper names, internal dict/return shapes, class structure. If you wrote a code block that
+  *is* the implementation, delete it.
+
+**Escape hatch — only for a genuine public contract.** If a shape is a real externally
+observed seam (a public HTTP endpoint, a CLI command's flags, a library function others
+import), capture just that under a short **`## Interface contract (fixed)`** heading — the
+minimum callers depend on, nothing internal. Everything else stays behavioral.
+
+> **Litmus test:** could a competent engineer implement this task a *different* reasonable way
+> and still pass every acceptance criterion? If your rules forbid that, you've written *how*.
+
+---
+
 ## Procedure
 
 1. **Load the plan** at `docs/plans/<slug>.md` and its acceptance-criteria trace.
@@ -48,9 +77,13 @@ behavior on every task.
      no reason — a pure-presentation task should not depend on the database layer).
 4. **Mark parallel safety.** Set `parallel_safe: false` for any task that touches files
    another task touches; list files in `touches`. This drives the loop's parallel guardrail.
-5. **Write the body as a mini Work Order.** Reuse the intake template (business rules,
-   acceptance criteria, edge cases, off-limits) and add a **test plan** (test → behavior
-   pairs) and a **demo** line.
+5. **Write the body as a mini Work Order — what, not how.** Reuse the intake template
+   (context, business rules, acceptance criteria, edge cases, off-limits) and add a **test
+   plan** (test → behavior pairs) and a **demo** line. Keep every field behavioral (see
+   *Write what, not how* above); put implementation shape only under `## Interface contract
+   (fixed)` and only for a real public seam. For a rule that genuinely can't be a test
+   (config change, data migration, pure refactor), give a **verification checklist** —
+   what to check and how — instead of a test, rather than faking a test.
 6. **Ask GitHub vs local at runtime** (see below) and, if GitHub, mirror each task into
    an issue.
 7. **Reject-first, then Gate 2.** Try to reject your own first cut — find one missing case.
@@ -169,6 +202,12 @@ On approval, set each task's `status: todo` (ready) and hand off to the loop.
 - [ ] Dependency coverage checked: each task's declared deps cover every symbol/module its
       body uses (no under-declared), and it depends on nothing it doesn't use (no over-declared).
 - [ ] Each body is a mini Work Order with a test plan and a demo line.
+- [ ] Each body is behavioral (what, not how): no function signatures, algorithms, private
+      names, or internal shapes as requirements. Implementation shape appears only under an
+      `## Interface contract (fixed)` heading, and only for a real public seam.
+- [ ] Passes the litmus test: a different reasonable implementation could still satisfy every
+      acceptance criterion.
+- [ ] Non-testable rules (config/migration/refactor) have a verification checklist, not a fake test.
 - [ ] Each business rule / edge case from the plan maps to a test in some task.
 - [ ] The GitHub-vs-local prompt was asked and the choice recorded in the plan.
 - [ ] (GitHub mode) issues carry the same fields as the task files.

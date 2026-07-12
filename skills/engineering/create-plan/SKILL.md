@@ -162,6 +162,31 @@ flowchart LR
 
 ---
 
+## Design guidance stays here — it is not task requirements
+
+This plan is where the *how* lives (components, signatures, algorithms). That detail is
+**guidance for the implementer**, not requirements to be copied verbatim into task bodies.
+When `break-into-tasks` slices this plan, tasks must be written as behavior (what "done"
+looks like), not as the signatures/algorithms sketched here — otherwise Work Orders turn
+into unreadable implementation specs that over-constrain the implementer. Keep the design
+detail in this file; let tasks reference behavior.
+
+## When TDD doesn't fit
+
+Not every change has testable business rules. Route these instead of faking tests:
+
+| Change type | Instead of a test |
+|---|---|
+| Data migration | Spec the before/after state + a rollback plan |
+| Config change | A verification checklist: what changes, what breaks if wrong, how to confirm |
+| Pure refactor (no behavior change) | Existing tests must stay green; add none |
+| Exploratory / prototype | Conductor mode; gate at merge, not per-test |
+
+Note these in the plan so `break-into-tasks` gives the task a verification checklist rather
+than a test where appropriate.
+
+---
+
 ## Self-check (dry-run validation)
 
 - [ ] Plan exists at `docs/plans/<slug>.md` and links back to the approved spec.
@@ -169,6 +194,8 @@ flowchart LR
 - [ ] The line-vs-R&D decision is explicit; any exploratory item is flagged off-line.
 - [ ] Risks / judgment calls are named for Inspection.
 - [ ] The design reuses existing patterns where possible (no gratuitous new deps).
+- [ ] Design detail is marked as guidance; non-testable changes are flagged for a
+      verification checklist rather than a forced test.
 
 ---
 

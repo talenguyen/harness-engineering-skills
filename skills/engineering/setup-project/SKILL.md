@@ -82,6 +82,22 @@ tsc --noEmit (types), gitleaks (secrets).
 Assign the **baseline owner** in the same block (a real person, not "TBD") — an unowned
 baseline drifts and quietly stops being trusted.
 
+### Writing the project's agent rules (`AGENTS.md`) — keep it lean and human-owned
+
+`AGENTS.md` is loaded every session, so it costs tokens every time and gets ignored when it
+bloats. Write it by hand and keep it short:
+
+- **Only what the agent cannot infer from the code.** Custom build/test commands,
+  counterintuitive patterns, and permission boundaries are gold. Architecture overviews and
+  "follow best practices" are noise — the agent can read the code.
+- **Write it yourself, don't have the agent generate it.** An agent can't describe what it
+  doesn't know; auto-generated rules tend to help less than none at all.
+- **Keep it lean.** Rule quality degrades as the file grows; push detail into referenced
+  docs (`@docs/build-commands.md`, `@docs/conventions.md`) via progressive disclosure.
+- **Ask for evidence, not screenshots.** Require test output / grep results as proof of a
+  claim, not images — screenshots waste context.
+- **Update it when the agent repeats a mistake** — that's the signal a rule is missing.
+
 ---
 
 ## Step 3 — Choose gate tools (language-agnostic, one per category)

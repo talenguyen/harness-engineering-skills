@@ -45,6 +45,16 @@ Either way: the **loop controller keeps only a minimal ledger**, never accumulat
 transcripts; and when you start a task, read **its** task file as the single source of truth
 — do not carry another task's decisions forward from memory.
 
+Two more habits:
+
+- **Flag a runaway task.** If a single task burns more than ~200k tokens (or the session
+  starts feeling sluggish/repetitive), stop — that usually means the task was too vague or
+  too big. Sharpen or split it rather than pushing a bloated context further.
+- **Context-reset pattern.** When a task runs long, commit work-in-progress to its branch,
+  start a **fresh session**, and let it re-read the spec map + task file + branch state and
+  continue. A clean context outperforms a stale one near capacity — prefer many short
+  sessions over one marathon.
+
 ---
 
 ## Step 0 — Sync from GitHub first (GitHub mode only)

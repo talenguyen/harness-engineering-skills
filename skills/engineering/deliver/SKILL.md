@@ -39,7 +39,9 @@ station is leaking; push the catch left instead of compensating with heroic revi
 - [ ] **Diff shape.** Many files touched but trivial tests → spec drift. Large diff with
       no tests → Station 2 was skipped. The shape tells you which upstream station leaked.
 - [ ] **AI-specific smells.** Unexplained new dependencies, diff size vs test coverage,
-      and whether CI actually passed (not just local hooks).
+      whether CI actually passed (not just local hooks), a fix that changes **callers**
+      instead of the root cause (architectural reasoning gap), and **multiple competing
+      approaches in one file** (the agent was guessing / looping).
 - [ ] **Codebase health.** Duplication, complexity, architectural fit — these erode even
       when every step's tests passed, and no earlier station catches them. This is the
       Inspection-only question.
@@ -67,8 +69,11 @@ force-push unless explicitly asked, keep hooks (no `--no-verify`).
 ```markdown
 Closes #<issue>
 
-## Summary
-<what changed, 1-3 sentences>
+## What & why
+<what changed, and why it was needed — 1-3 sentences>
+
+## How to test
+<manual steps a reviewer can run to verify: commands / requests / expected results>
 
 ## Tested
 <tests added/run; note any held-out tests / mutation on critical paths>
@@ -76,6 +81,11 @@ Closes #<issue>
 ## Acceptance criteria (from docs/tasks/<id>.md)
 - [x] <criterion 1>
 - [x] <criterion 2>
+
+## Checklist
+- [x] No secrets exposed
+- [ ] Docs/spec updated if behavior or conventions changed
+- [ ] Breaking changes documented (or "none")
 
 ## Blockers / follow-ups
 <anything deferred, or "none">
@@ -115,9 +125,13 @@ After the **human** merges a task's PR (GitHub mode) or approves the local revie
 before:
 
 1. Set the task `status: done` (sync the GitHub issue/label in GitHub mode).
-2. Recompute readiness: any task whose `depends_on` are now all `done` becomes ready.
-3. **If ready tasks remain → return to `implement-task-loop`** for the next one.
-4. **If no tasks are ready and none in progress → the line is done.** Report completion.
+2. **Doc sync (most-skipped step).** If the task introduced a new convention, changed
+   behavior, or broke something, update the project's agent rules (`AGENTS.md` / `harness.md`),
+   the relevant `docs/*`, and `CHANGELOG` **now** — before moving on. Stale docs make the next
+   task build against the wrong picture.
+3. Recompute readiness: any task whose `depends_on` are now all `done` becomes ready.
+4. **If ready tasks remain → return to `implement-task-loop`** for the next one.
+5. **If no tasks are ready and none in progress → the line is done.** Report completion.
 
 ```text
 in_review ─► inspect (narrow) ─► merge ─► status=done
