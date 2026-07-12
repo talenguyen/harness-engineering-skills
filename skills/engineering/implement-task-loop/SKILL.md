@@ -69,8 +69,10 @@ gh pr list --search "T-002 in:title" --state merged --json number --jq '.[0].num
 ## Step 1 — Select ready tasks
 
 A task is **ready** when its `status` is `todo` **and** every id in its `depends_on` is
-`done`. Everything else is `blocked` (leave it). If nothing is ready and nothing is in
-progress, the loop is complete — hand back to `deliver.md` for final loop control.
+`done`. A `todo` task with an unfinished dep is **blocked** — but that's a *derived* state you
+compute here, not a status you write (the stored values are `todo | in_progress | in_review |
+done`). If nothing is ready and nothing is in progress, the loop is complete — hand back to
+`deliver.md` for final loop control.
 
 ---
 

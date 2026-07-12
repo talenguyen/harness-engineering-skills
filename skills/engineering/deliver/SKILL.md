@@ -125,13 +125,17 @@ After the **human** merges a task's PR (GitHub mode) or approves the local revie
 before:
 
 1. Set the task `status: done` (sync the GitHub issue/label in GitHub mode).
-2. **Doc sync (easy to skip).** If the task introduced a new convention, changed
-   behavior, or broke something, update the project's agent rules (`AGENTS.md` / `harness.md`),
-   the relevant `docs/*`, and `CHANGELOG` **now** — before moving on. Stale docs make the next
-   task build against the wrong picture.
-3. Recompute readiness: any task whose `depends_on` are now all `done` becomes ready.
-4. **If ready tasks remain → return to `implement-task-loop`** for the next one.
-5. **If no tasks are ready and none in progress → the line is done.** Report completion.
+2. **Close the spec section if complete.** The task's `section:` names the spec section it
+   implements. If **all** tasks with that `section:` are now `done`, set that section's
+   `Status: implemented` in `docs/specs/<slug>/<section>.md` and update its row in the map's
+   Sections table — so `overview.md` always reflects what's actually shipped.
+3. **Doc sync (easy to skip).** If the task introduced a new convention, changed behavior,
+   or broke something, update the project's agent rules (`AGENTS.md` / `harness.md`), the
+   relevant `docs/*`, and `CHANGELOG` **now** — stale docs make the next task build against
+   the wrong picture.
+4. Recompute readiness: any task whose `depends_on` are now all `done` becomes ready.
+5. **If ready tasks remain → return to `implement-task-loop`** for the next one.
+6. **If no tasks are ready and none in progress → the line is done.** Report completion.
 
 ```text
 in_review ─► inspect (narrow) ─► merge ─► status=done
@@ -152,6 +156,8 @@ in_review ─► inspect (narrow) ─► merge ─► status=done
       was explicitly enabled); worktree removed + branch cleaned up after merge.
 - [ ] Local mode: waited for human approval before merge.
 - [ ] git-safety honored (specific staging, secret-file flag, no force-push, hooks kept).
+- [ ] When a section's last task merged, its spec section `Status: implemented` and the map's
+      Sections row were updated (spec map matches what shipped).
 - [ ] Loop returns to `implement-task-loop.md` while ready tasks remain; exits when all `done`.
 
 ---

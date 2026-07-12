@@ -71,7 +71,9 @@ Because the map records every section's status, an agent (even a fresh session) 
 re-read `overview.md`, see exactly where things stand, and **resume, redraft one section,
 or pause to implement a finished section and come back** — without relying on chat memory.
 
-Section status values: `todo | drafting | drafted | approved | implemented`.
+Section status values: `drafting | drafted | approved | implemented` (`todo` is a *task*
+status, not a section one). You set `drafting → drafted → approved` here; `implemented` is set
+later by `deliver` when every task carrying that section is `done`, closing the loop.
 
 ---
 

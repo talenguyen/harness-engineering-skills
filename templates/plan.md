@@ -1,7 +1,8 @@
 # Plan: <title>
 
 - Slug: <slug>
-- Spec: docs/specs/<slug>/overview.md (+ section(s): <section>.md)
+- Spec: docs/specs/<slug>/overview.md
+- Sections covered: <section-slugs designed in this plan so far>
 - Status: draft
 - Mode: <github | local>
 

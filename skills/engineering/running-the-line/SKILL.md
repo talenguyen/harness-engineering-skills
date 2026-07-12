@@ -55,6 +55,10 @@ Each station has its own deep-dive skill (below); load the one for your current 
 Field failures feed back **upstream**: every escaped defect becomes a new test or rule at the
 station that should have caught it, so the line gets smarter over time.
 
+Two stations span multiple skills by design: **Station 3 (Andon Cord)** — `setup-project`
+*installs* the gates, `implement-task-loop` *runs* them — and **Station 2** (design in
+`create-plan`, tasks in `break-into-tasks`, build in `implement-task-loop`).
+
 ---
 
 ## Station skills — load the one for your stage

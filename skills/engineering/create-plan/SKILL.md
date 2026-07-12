@@ -59,8 +59,12 @@ Conductor mode is the explicit fallback for work that isn't ready for the line �
    design element that delivers it. A criterion with no home means the design is incomplete.
 6. **Call out risks and judgment calls** — the security boundaries, data-handling
    decisions, and choices the spec couldn't fully pin down. These become Inspection focus later.
-7. **Write it to `docs/plans/<slug>.md`** using the template. This feeds directly into
-   `break-into-tasks.md`.
+7. **Write it to `docs/plans/<slug>.md`** using the template. There is **one plan per slug**:
+   if you're designing sections incrementally (intake approves section-by-section), *append or
+   update* this same file with the design + acceptance-criteria trace for the section(s)
+   you're covering and list them under **Sections covered** — never create a second plan file
+   for the same slug. This feeds directly into `break-into-tasks.md`, whose tasks carry a
+   `section:` back-reference so the chain spec-section → plan → task → PR stays traceable.
 
 ---
 
@@ -70,7 +74,8 @@ Conductor mode is the explicit fallback for work that isn't ready for the line �
 # Plan: <title>
 
 - Slug: <slug>
-- Spec: docs/specs/<slug>/overview.md (+ section(s): <section>.md)
+- Spec: docs/specs/<slug>/overview.md
+- Sections covered: <section-slugs designed in this plan so far>
 - Status: draft
 
 ## Line vs R&D decision
@@ -196,6 +201,8 @@ than a test where appropriate.
 - [ ] The design reuses existing patterns where possible (no gratuitous new deps).
 - [ ] Design detail is marked as guidance; non-testable changes are flagged for a
       verification checklist rather than a forced test.
+- [ ] One plan per slug; **Sections covered** lists the section(s) designed here (no second
+      plan file for the same slug when designing incrementally).
 
 ---
 

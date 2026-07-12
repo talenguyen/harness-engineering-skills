@@ -64,8 +64,9 @@ minimum callers depend on, nothing internal. Everything else stays behavioral.
    - carry a test for each business rule and each edge case it owns (not coverage theater —
      a test per rule/edge case is the target).
    - The final task wires everything into an end-to-end run.
-3. **Assign IDs and dependencies.** Give each task `T-00N`. Fill `depends_on` with the
-   tasks that must be `done` first. The graph **must be acyclic** — verify no cycles.
+3. **Assign IDs, section, and dependencies.** Give each task `T-00N`, set `section:` to the
+   spec section it implements (`<slug>/<section>`), and fill `depends_on` with the tasks that
+   must be `done` first. The graph **must be acyclic** — verify no cycles.
    **Then check dependency *coverage*, not just legality:** for each task, list the
    functions, modules, or files its body says it *uses*, and confirm every one is produced
    by a task in its `depends_on` (directly or transitively). A task that calls
@@ -99,8 +100,9 @@ Frontmatter = orchestration (machine-read by the loop). Body = the mini Work Ord
 ---
 id: T-003
 title: <short objective>
+section: <slug>/<section>    # the spec section this task implements (docs/specs/<slug>/<section>.md)
 depends_on: [T-001, T-002]
-status: todo                 # todo | in_progress | blocked | in_review | done
+status: todo                 # todo | in_progress | in_review | done  (blocked is DERIVED, never written)
 parallel_safe: true          # false if it touches files another task touches
 touches: [src/auth/*.ts]     # file globs — used for the parallel overlap check
 issue:                       # GitHub mode only: the mirrored issue number (e.g. 42)
@@ -127,8 +129,11 @@ issue:                       # GitHub mode only: the mirrored issue number (e.g.
 - [what can be shown working after this task]
 ```
 
-The five `status` values are the loop's state machine: `todo → in_progress →
-in_review → done`, with `blocked` when a dependency isn't `done` yet.
+The stored `status` values are `todo → in_progress → in_review → done`. **`blocked` is
+*derived*, never written:** a `todo` task whose `depends_on` aren't all `done` is blocked.
+Readiness is computed from `depends_on` + `status`, so there is a single source of truth.
+`section` ties the task to its spec section for end-to-end traceability (spec → plan → task
+→ PR), and lets `deliver` mark the section `implemented` once all its tasks are `done`.
 
 ---
 
@@ -197,7 +202,9 @@ On approval, set each task's `status: todo` (ready) and hand off to the loop.
 
 ## Self-check (dry-run validation)
 
-- [ ] Every task file has valid frontmatter (id, depends_on, status, parallel_safe, touches).
+- [ ] Every task file has valid frontmatter (id, section, depends_on, status, parallel_safe,
+      touches); status is one of `todo|in_progress|in_review|done` — no stored `blocked`.
+- [ ] Each task's `section:` points to a real spec section (`docs/specs/<slug>/<section>.md`).
 - [ ] The `depends_on` graph is acyclic (no cycles) and every referenced id exists.
 - [ ] Dependency coverage checked: each task's declared deps cover every symbol/module its
       body uses (no under-declared), and it depends on nothing it doesn't use (no over-declared).
