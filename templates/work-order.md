@@ -1,20 +1,24 @@
-# Work Order: [task]
+# Spec: <title> — <section>
 
-## Task
-[One sentence describing the part to build or fix.]
+- Parent: docs/specs/<slug>/overview.md
+- Status: drafting            # drafting | drafted | approved | implemented
+
+## Summary
+One or two sentences.
 
 ## Business rules
-1. [Testable rule]
+1. <testable rule>
 
 ## Acceptance criteria
-- [ ] [Observable outcome]
+- [ ] <observable outcome a stranger could verify>
+- [ ] <observable outcome>
+- [ ] <observable outcome>
 
 ## Edge cases
-- [Case that changes behavior, risk, or correctness]
+- <the thing that breaks at 2am>
 
 ## Off-limits
-- [Constraint the implementation must not cross]
+- <the constraint the agent must not cross>
 
-## Assumptions
-- [Only if needed; label assumptions clearly]
-
+## Open questions
+- <resolve before approval>

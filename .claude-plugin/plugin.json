@@ -1,12 +1,13 @@
 {
   "name": "harness-engineering-skills",
   "skills": [
-    "./skills/engineering/setup-harness-engineering",
     "./skills/engineering/running-the-line",
-    "./skills/engineering/work-order",
-    "./skills/engineering/tdd-plan-gate",
-    "./skills/engineering/andon-cord",
-    "./skills/engineering/inspection",
-    "./skills/engineering/field-return"
+    "./skills/engineering/setup-project",
+    "./skills/engineering/intake-requirement",
+    "./skills/engineering/create-plan",
+    "./skills/engineering/break-into-tasks",
+    "./skills/engineering/implement-task-loop",
+    "./skills/engineering/deliver",
+    "./skills/engineering/field-returns"
   ]
 }

@@ -1,38 +1,19 @@
-# [Project Name] Agent Guide
+<!-- harness:start -->
+# Harness Engineering Line
 
-> Fill this file only with repo-specific facts. Delete any line you cannot
-> verify from the repo or from the project owner.
+This repo runs the **Harness Engineering line**. Before any task, read **`harness.md`**
+and follow it as a hard contract — it holds the full operating manual (the five stations,
+the skills index, and the pipeline). Load the skill module `harness.md` points you to for
+your current stage.
 
-## Before Starting Work
+**Non-negotiables (authoritative full text in `harness.md`):**
+1. Plan before you edit — read code and plan first; no premature patching.
+2. Tests first — a failing test states "done" before the implementation exists.
+3. Never bypass hooks — no `--no-verify`, no skipping CI or enforced gates.
+4. Never weaken a gate to pass it — don't loosen config or delete/skip tests; fix the code.
+5. The Work Order is human-owned — scope, acceptance criteria, and trade-offs need human
+   approval (Gate 1 after the spec, Gate 2 after the task plan).
+6. Isolate before you automate — confirm the Station 0 checklist before any unattended run.
 
-- Read [doc path] for build/test commands.
-- Read [doc path] for project-specific conventions.
-
-## Stack
-
-- [runtime/language discovered from repo]
-- Package manager: [exact package manager; do not guess]
-- Test runner: [exact test runner if known]
-
-## Always
-
-- Write or update tests before implementation when behavior changes.
-- Run [exact test command] before review.
-- Run [exact lint/type/format command] before review.
-- Show command output as evidence.
-- Keep changes scoped to the work order.
-
-## Never
-
-- Do not bypass hooks or use no-verify flags.
-- Do not edit lint, type, test, or hook configuration just to make a task pass.
-- Do not delete, weaken, or skip tests to get green.
-- Do not print, edit, rename, delete, or commit secret files.
-- Do not touch [repo-specific off-limits paths or APIs].
-
-## When A Gate Fails
-
-Read the exact error, fix that defect, re-run the same gate, and proceed only
-when green. If the gate itself is wrong, stop and propose a separate config
-change.
-
+Verify the line at any time: `bash tools/check-line.sh`.
+<!-- harness:end -->

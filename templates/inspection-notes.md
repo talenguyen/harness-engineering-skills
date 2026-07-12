@@ -1,20 +1,13 @@
-# Inspection Notes: [task]
+# Inspection — <task id / PR>
 
-## Findings
-- [Severity] [file:line] [Issue]
-  Evidence:
-  Why it matters:
-  Upstream station that should catch next time:
+Narrow Station 4 review. Stations 1–3 already killed the wrong-thing, the logic, and the
+mechanical defects — do **not** re-read everything. Check only:
 
-## Acceptance criteria
-- [ ] [criterion] - [pass/fail/unknown]
+- [ ] **Acceptance criteria.** Every box in the task's Work Order ticked against real behavior.
+- [ ] **Judgment calls.** Security boundaries, data handling, choices the spec left open.
+- [ ] **Intent vs harness.** Did it satisfy the intent, or just the visible tests?
+- [ ] **Diff shape.** Many files + trivial tests → spec drift. Large diff + no tests → Station 2 skipped.
+- [ ] **AI smells.** Unexplained new deps, diff size vs coverage, CI actually passed.
+- [ ] **Codebase health.** Duplication, complexity, architectural fit.
 
-## Off-limits check
-- [ ] [constraint] - [respected/violated/unknown]
-
-## Gate evidence
-- [gate] - [passed/failed/not run]
-
-## Residual risk
-- [what remains uncertain]
-
+Verdict: <approve / request changes — with which upstream station leaked>
