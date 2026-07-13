@@ -1,212 +1,57 @@
 ---
 name: create-plan
-station: "2 (design)"
-description: "Designs the solution from an approved spec and traces every acceptance criterion to a design element, routing exploratory R&D off the line. Use after Gate 1 when an approved spec needs a design before task breakdown."
-requires:
-  - "docs/specs/<slug>/overview.md (the map) + the approved section spec(s) to design for"
-produces:
-  - "docs/plans/<slug>.md — the design"
+description: "Designs the solution from an approved spec, traces every acceptance criterion to a design element, and routes exploratory work off the line. Use after Gate 1 when a spec section is approved."
 ---
 
-# Create Plan — Station 2 (Design)
+# Create Plan
 
-The approved Work Order says *what* correct means. This skill decides *how*, grounded in
-the actual codebase — before anything gets broken into tasks. Reading and planning before
-editing is the strongest predictor of task success; premature patching is the strongest
-predictor of failure. This station forces the planning.
+Input: an approved spec section (from `docs/specs/<slug>/<section>.md`).
+Output: `docs/plans/<slug>.md` (one plan per slug, updated incrementally as sections are designed).
 
-> **Guard: is this even a line part?** The line is for well-defined parts, not R&D.
-> If the spec is really "I don't know what I want yet," novel architecture, or deep
-> unknown domain logic, do **not** force it through spec→plan→gate. Route it to
-> **conductor mode** (defined below), and only put the resulting well-defined
-> implementation back on the line. Make this call explicitly in the plan.
+## Before designing — is this a line part or R&D?
 
-### What "conductor mode" means
+- **Line part (well-defined):** proceed below.
+- **Exploratory (unknown shape):** do NOT force it through spec→plan→tasks. Work it
+  turn-by-turn with the human (conductor mode). Once the shape is known, write it up as a
+  spec section and *then* put it on the line.
 
-Conductor mode is the explicit fallback for work that isn't ready for the line — it is
-**not** a separate skill, it's a way of working:
-
-- **You and the agent iterate turn-by-turn in real time** — propose, try, inspect,
-  correct — instead of writing a full spec and delegating a batch.
-- **The always-on rules still apply** (plan before edit, tests where they fit, never
-  bypass or weaken gates). What's relaxed is only the spec→plan→tasks *ceremony*.
-- **How to enter:** in the plan, list the exploratory item under "Routed to conductor
-  mode" and stop planning it. Then work it live with the human.
-- **How to exit:** once the shape is known and stable, write it up as a spec section
-  (`intake-requirement`) and send *that* down the normal line. Conductor mode is the
-  on-ramp, not a parallel track.
-
----
+Record which items go where in the plan under "Line vs R&D."
 
 ## Procedure
 
-1. **Load the spec map + the approved section(s).** Read `docs/specs/<slug>/overview.md`
-   for intent and cross-cutting constraints, then the section spec(s) you're designing.
-   Confirm each target section's `Status: approved`. If a section isn't approved, go back
-   to `intake-requirement.md` — do not design against a draft. You may design one approved
-   section at a time, or the whole map once every section is approved.
-2. **Research the code.** Read the modules the change will touch. Identify existing
-   patterns, conventions, libraries, and constraints. Prefer reusing what's there over
-   introducing new dependencies or patterns.
-3. **Make the R&D-vs-line decision.** For each part of the work, classify: *line part*
-   (well-defined, goes on the pipeline) or *exploratory* (route to conductor mode first).
-   Record it. If the whole thing is exploratory, say so and stop — don't manufacture a
-   plan for something that isn't ready.
-4. **Design the solution.** Describe the approach, the components involved, data flow,
-   and the key decisions. Use a mermaid diagram where a picture beats prose.
-5. **Map design → acceptance criteria 1:1.** Every acceptance criterion in the spec must
-   be satisfied by something in the plan. Build a table that traces each criterion to the
-   design element that delivers it. A criterion with no home means the design is incomplete.
-6. **Call out risks and judgment calls** — the security boundaries, data-handling
-   decisions, and choices the spec couldn't fully pin down. These become Inspection focus later.
-7. **Write it to `docs/plans/<slug>.md`** using the template. There is **one plan per slug**:
-   if you're designing sections incrementally (intake approves section-by-section), *append or
-   update* this same file with the design + acceptance-criteria trace for the section(s)
-   you're covering and list them under **Sections covered** — never create a second plan file
-   for the same slug. This feeds directly into `break-into-tasks.md`, whose tasks carry a
-   `section:` back-reference so the chain spec-section → plan → task → PR stays traceable.
+1. Confirm each target section's `Status: approved`. Do not design against a draft.
+2. Read the code the change will touch — reuse existing patterns over new dependencies.
+3. Design the approach: components, data flow, key decisions. Use a mermaid diagram if it helps.
+4. Build an **acceptance-criteria trace table**: every AC from the spec must map to a design element. A criterion with no home = design is incomplete.
+5. Call out **risks and judgment calls** (security, data handling, open choices) — these become Inspection focus.
+6. Note which changes are non-testable (config, migration, pure refactor) — these get a verification checklist instead of tests at the task stage.
+7. Write to `docs/plans/<slug>.md`. If designing incrementally, update the existing plan and list the section(s) you just covered under **Sections covered**.
 
----
-
-## Plan template (`docs/plans/<slug>.md`)
+## Plan structure
 
 ```markdown
 # Plan: <title>
-
 - Slug: <slug>
 - Spec: docs/specs/<slug>/overview.md
-- Sections covered: <section-slugs designed in this plan so far>
+- Sections covered: <section-slugs designed so far>
 - Status: draft
+- Mode: github | local
 
-## Line vs R&D decision
-- On the line (well-defined): <list>
-- Routed to conductor mode (exploratory): <list, or "none">
-
+## Line vs R&D
 ## Approach
-Prose description of the how. What changes, where, and why this shape.
-
-## Design
-```mermaid
-flowchart LR
-  A[client] --> B[middleware]
-  B --> C[token service]
-  C --> D[(store)]
-```
-
+## Design (mermaid if useful)
 ## Components touched
-- `<path>` — <what changes>
-
-## Acceptance-criteria trace (1:1 with the spec)
-| Acceptance criterion | Delivered by |
-|---|---|
-| <criterion 1> | <design element> |
-| <criterion 2> | <design element> |
-
+## Acceptance-criteria trace
+| AC | Delivered by |
+|----|--------------|
 ## Risks & judgment calls
-- <security boundary / data handling / decision the spec left open>
-
-## Test strategy notes
-- Which paths are critical enough to warrant the optional guards (held-out tests /
-  mutation testing) — see `implement-task-loop.md` Step 4; skip them if the stack/harness
-  doesn't support them rather than faking coverage.
+## Non-testable changes (verification checklist needed)
 ```
 
----
+## Key constraint
 
-## Worked example (from the jwt-auth spec)
+The plan is where *how* lives (signatures, algorithms, components). This detail is
+**guidance for the implementer** — it must NOT be copied verbatim into task bodies as
+requirements. Tasks state *what* (behavior); the plan stays as reference.
 
-```markdown
-# Plan: JWT authentication for the API
-
-- Slug: jwt-auth
-- Spec: docs/specs/jwt-auth/overview.md (+ sections: refresh-rotation.md, …)
-- Status: draft
-
-## Line vs R&D decision
-- On the line: token issue/verify, refresh rotation, 401 middleware.
-- Routed to conductor mode: none (well-defined).
-
-## Approach
-Add a token service that signs short-lived access tokens and single-use refresh tokens.
-Auth middleware verifies access tokens and returns 401 on any failure. Refresh endpoint
-rotates the refresh token and detects reuse via a per-family counter.
-
-## Design
-```mermaid
-flowchart LR
-  Client -->|access token| MW[auth middleware]
-  MW -->|valid| Route[protected route]
-  MW -->|invalid/expired| E401[401]
-  Client -->|refresh token| RS[refresh endpoint]
-  RS --> TS[token service] --> DB[(refresh family store)]
-  RS -->|reused token| REVOKE[revoke family]
-```
-
-## Components touched
-- `src/auth/tokenService.*` — sign/verify, rotation, family tracking.
-- `src/auth/middleware.*` — verify access token, 401 on failure.
-- `src/routes/refresh.*` — refresh + reuse detection.
-
-## Acceptance-criteria trace (1:1 with the spec)
-| Acceptance criterion | Delivered by |
-|---|---|
-| Protected route w/o token → 401 (never 500) | auth middleware |
-| Valid access token grants access for 15 min | token service (exp) + middleware |
-| Refresh returns new pair; old refresh invalid | refresh endpoint + rotation |
-| Reused refresh token revokes family | family store + reuse detection |
-
-## Risks & judgment calls
-- Refresh-token storage model and key management — human judgment at Inspection.
-- Concurrent refresh race — must be covered by an edge-case test.
-
-## Test strategy notes
-- Reuse detection is the critical path — worth the optional held-out test (if a separate
-  reviewer writes the code) or a mutation check. Otherwise, make "harness vs intent?" an
-  explicit Inspection question.
-```
-
----
-
-## Design guidance stays here — it is not task requirements
-
-This plan is where the *how* lives (components, signatures, algorithms). That detail is
-**guidance for the implementer**, not requirements to be copied verbatim into task bodies.
-When `break-into-tasks` slices this plan, tasks must be written as behavior (what "done"
-looks like), not as the signatures/algorithms sketched here — otherwise Work Orders turn
-into unreadable implementation specs that over-constrain the implementer. Keep the design
-detail in this file; let tasks reference behavior.
-
-## When TDD doesn't fit
-
-Not every change has testable business rules. Route these instead of faking tests:
-
-| Change type | Instead of a test |
-|---|---|
-| Data migration | Spec the before/after state + a rollback plan |
-| Config change | A verification checklist: what changes, what breaks if wrong, how to confirm |
-| Pure refactor (no behavior change) | Existing tests must stay green; add none |
-| Exploratory / prototype | Conductor mode; gate at merge, not per-test |
-
-Note these in the plan so `break-into-tasks` gives the task a verification checklist rather
-than a test where appropriate.
-
----
-
-## Self-check (dry-run validation)
-
-- [ ] Plan exists at `docs/plans/<slug>.md` and links back to the approved spec.
-- [ ] The acceptance-criteria trace table covers **every** criterion 1:1 (none orphaned).
-- [ ] The line-vs-R&D decision is explicit; any exploratory item is flagged off-line.
-- [ ] Risks / judgment calls are named for Inspection.
-- [ ] The design reuses existing patterns where possible (no gratuitous new deps).
-- [ ] Design detail is marked as guidance; non-testable changes are flagged for a
-      verification checklist rather than a forced test.
-- [ ] One plan per slug; **Sections covered** lists the section(s) designed here (no second
-      plan file for the same slug when designing incrementally).
-
----
-
-## Handoff
-
-Proceed to **`break-into-tasks`** (Station 2 — tasks + Gate 2) to convert this
-plan into TDD tasks.
+Next: `break-into-tasks`
