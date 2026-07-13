@@ -38,12 +38,17 @@ Create `task/<id>-<slug>` branch from the base branch **before the first edit**.
   concurrency ≤ 2-3): each task gets its own `git worktree`. Install project deps in the
   fresh worktree before running tests.
 
-## Step 3 — TDD red → green
+## Step 3 — Generate test plan (fresh read, before implementation)
+
+Compact context (or use a sub-agent). Re-read the **spec section** + the task body from
+scratch. Derive a test plan (test→behavior pairs) from the spec's acceptance criteria and
+edge cases. Present the test plan for approval before writing any code.
+
+## Step 4 — TDD red → green
 
 1. Read the code the task touches. Plan what you'll change.
 2. Set `status: in_progress`.
-3. Write tests first — one per acceptance criterion, one per edge case.
-   Run them; they must be **red** for the right reason.
+3. Write tests from the approved test plan. Run them; they must be **red** for the right reason.
 4. Implement the minimum to turn them green.
 5. If passing a test requires crossing an **off-limits** constraint → stop and surface it.
 

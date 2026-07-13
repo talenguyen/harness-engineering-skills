@@ -29,12 +29,10 @@ under `## Interface contract` — nothing internal.
      defines it. Also check for over-declared deps (kills parallelism for no reason).
 4. Set `parallel_safe: false` if it touches files another task touches.
 5. Write the body: context, business rules (behavioral), acceptance criteria (≥3,
-   stranger-verifiable), edge cases, off-limits, test plan (test→behavior pairs), demo.
-   For non-testable rules (config, migration, refactor), give a verification checklist
-   instead of a test.
-6. GitHub mode: mirror each task to an issue (idempotently — check before creating).
-   Record the issue number in `issue:` frontmatter.
-7. **Reject-first:** try to find one missing case in your own plan. Add it.
+   stranger-verifiable), edge cases, off-limits, demo.
+   For non-testable rules (config, migration, refactor), write a verification checklist.
+6. GitHub mode: mirror each task to an issue (idempotently). Record `issue:` in frontmatter.
+7. **Reject-first:** find one missing case. Add it.
 8. Present the task list + dependency graph. **Stop for Gate 2 approval.**
 
 ## Task file format
@@ -55,7 +53,6 @@ issue:
 ### Acceptance criteria
 ### Edge cases
 ### Off-limits
-### Test plan
 ### Demo
 ```
 
