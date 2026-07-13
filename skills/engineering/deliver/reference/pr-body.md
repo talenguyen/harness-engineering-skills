@@ -3,8 +3,11 @@
 ```
 Closes #<issue>
 
-## What & why
-<1-3 sentences>
+## What
+<what changed — 1-2 sentences>
+
+## Why
+<why this change is needed>
 
 ## How to test
 <commands / steps a reviewer can run to verify>
