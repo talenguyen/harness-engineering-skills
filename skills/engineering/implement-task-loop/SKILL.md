@@ -7,6 +7,9 @@ description: "Implements ready tasks test-first (red→green), self-corrects aga
 
 Alternates with `deliver` per task: implement one → open its PR → human merges → next.
 
+Do not pause to ask "should I continue?" between tasks. Only stop when: blocked, ambiguous,
+or all tasks complete.
+
 ## Clean context per task
 
 Each task is a clean room. Do not carry prior task transcripts forward.
@@ -32,17 +35,20 @@ in progress → loop complete, hand to `deliver` for final exit.
 
 ## Step 2 — Branch + isolation
 
+Check if you are already in an isolated worktree (compare git-dir vs git-common-dir). If
+yes, skip creation. Otherwise:
+
 Create `task/<id>-<slug>` branch from the base branch **before the first edit**.
 - Serial: work in the main tree.
 - Parallel (only when all candidates are `parallel_safe`, `touches` don't overlap,
   concurrency ≤ 2-3): each task gets its own `git worktree`. Install project deps in the
   fresh worktree before running tests.
 
-## Step 3 — Generate test plan (fresh read, before implementation)
+## Step 3 — Generate test plan (fresh read)
 
-Compact context (or use a sub-agent). Re-read the **spec section** + the task body from
-scratch. Derive a test plan (test→behavior pairs) from the spec's acceptance criteria and
-edge cases. Present the test plan for approval before writing any code.
+Compact context (or use a sub-agent). Re-read the spec section + the task body from scratch.
+Derive a test plan (test→behavior pairs) from the spec's acceptance criteria and edge cases.
+Present the test plan for approval before writing any code.
 
 ## Step 4 — TDD red → green
 
@@ -52,12 +58,22 @@ edge cases. Present the test plan for approval before writing any code.
 4. Implement the minimum to turn them green.
 5. If passing a test requires crossing an **off-limits** constraint → stop and surface it.
 
-## Step 4 — Hooks (Andon Cord)
+## Step 5 — Hooks (Andon Cord)
 
 Run pre-commit gates. On failure: read the error, fix the exact issue, re-run. Never
 `--no-verify`; never edit gate config to pass.
 
-## Step 5 — Hand to deliver
+## Step 6 — Task review (sub-agent, if available)
+
+If the runtime supports sub-agents: dispatch a reviewer sub-agent with the spec section +
+the task body + the diff. It checks spec compliance and code quality. Fix any critical
+findings before proceeding. If sub-agents are not available, skip — human review at
+`deliver` serves as the gate.
+
+## Step 7 — Hand to deliver
+
+Do not claim "tests pass" or "done" without showing evidence from a verification command
+run in this step.
 
 Set `status: in_review`. Push the branch. Hand off to `deliver` for this task's PR.
 
