@@ -23,8 +23,5 @@ issue:                       # GitHub mode only: the mirrored issue number (e.g.
 ### Off-limits
 - [the constraint the agent must not cross]
 
-### Test plan
-- [test -> behavior pair]
-
 ### Demo
 - [what can be shown working after this task]
