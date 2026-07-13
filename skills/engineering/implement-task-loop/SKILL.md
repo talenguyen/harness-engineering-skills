@@ -72,8 +72,11 @@ findings before proceeding. If sub-agents are not available, skip — human revi
 
 ## Step 7 — Hand to deliver
 
-Do not claim "tests pass" or "done" without showing evidence from a verification command
-run in this step.
+Verify before claiming done:
+- Run the test command now. Do not use words "should", "probably", "seems to" in a
+  completion claim — they signal unverified assertions.
+- For bug fixes: pass → revert fix → fail → restore fix → pass (proves the test catches it).
+- Show the command, exit code, and key output as evidence.
 
 Set `status: in_review`. Push the branch. Hand off to `deliver` for this task's PR.
 

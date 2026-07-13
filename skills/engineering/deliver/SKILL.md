@@ -25,8 +25,11 @@ If not present at merge (human merged async), `implement-task-loop` Step 0 recon
 ## Constraints
 
 - Never push to `main`. Task already has its own branch.
-- Stage specific files. Flag anything that looks like a secret.
-- No `--no-verify`, no force-push, no self-merge (unless auto-merge is explicitly enabled).
+- Stage specific files (`git add <path>`), never `git add .` or `-A`.
+- Flag anything that looks like a secret; never commit `.env`, credentials, local config, or generated files unless the change explicitly requires them.
+- No `--no-verify`, no force-push, no amend/rebase unless the user explicitly asks.
+- No self-merge (unless auto-merge is explicitly enabled).
+- If hooks change files on commit, inspect the diff and re-stage only intended hook output before retrying.
 - Local mode: produce a review summary, wait for human approval, then merge.
 
 ## Inspection checklist (what the reviewer checks)

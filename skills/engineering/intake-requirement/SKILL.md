@@ -11,7 +11,7 @@ Goal: turn a fuzzy request into something a stranger could verify. The deliverab
 ## How to elicit
 
 - Look facts up in the codebase; only ask the human about **decisions** (scope, priorities, trade-offs).
-- One question at a time. Propose your recommended answer with each.
+- One question at a time. Include why the decision matters, offer 2-3 options when useful, and propose your recommended answer.
 - Stay on the *what* and *why*. If you're reaching for data structures or function names, stop — that's design (Station 2).
 - Every request gets a spec, no matter how simple. Keep it short for simple asks; never skip it.
 
